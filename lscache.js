@@ -109,7 +109,11 @@ var lscache = function() {
 
       // If a time is specified, store expiration info in localStorage
       if (time) {
-        localStorage.setItem(expirationKey(key), currentTime() + time);
+		  if(time == -1) {
+			  localStorage.setItem(expirationKey(key), -1);
+		  } else {
+			localStorage.setItem(expirationKey(key), currentTime() + time);
+		  }
       } else {
         // In case they set a time earlier, remove that info from localStorage.
         localStorage.removeItem(expirationKey(key));
@@ -148,7 +152,7 @@ var lscache = function() {
       if (localStorage.getItem(expirationKey(key))) {
         var expirationTime = parseInt(localStorage.getItem(expirationKey(key)), 10);
         // Check if we should actually kick item out of storage
-        if (currentTime() >= expirationTime) {
+        if (currentTime() >= expirationTime && expirationTime != -1) {
           localStorage.removeItem(key);
           localStorage.removeItem(expirationKey(key));
           return null;
