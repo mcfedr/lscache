@@ -82,9 +82,21 @@ var lscache = function() {
       // Use this function to loop until the value "fits" into available space.
       function setItem(key, value) {
         try {
+			if (time) {
+			  if(time == -1) {
+				  localStorage.setItem(expirationKey(key), -1);
+			  } else {
+				localStorage.setItem(expirationKey(key), currentTime() + time);
+			  }
+		  } else {
+			// In case they set a time earlier, remove that info from localStorage.
+			localStorage.removeItem(expirationKey(key));
+		  }
+			
           return localStorage.setItem(key, value);
         } catch (e) {
-          if (e.name === 'QUOTA_EXCEEDED_ERR') {
+			var a = e;
+          if (e.name === 'QUOTA_EXCEEDED_ERR' || e.name == 'NS_ERROR_DOM_QUOTA_REACHED' || e.message == 'QUOTA_EXCEEDED_ERR') {
             // If the quota is exceeded, but the localStorage is empty, we can't store the item.
             if(localStorage.length <= 0) {
               return null;
@@ -99,7 +111,7 @@ var lscache = function() {
                 storedKeys.push({key: mainKey, expiration: parseInt(localStorage[storedKey])});
               }
             }
-            storedKeys.sort(function(a, b) { return (a.expiration-b.expiration); });
+            storedKeys.sort(function(a, b) { return a.expiration == -1 ? 1 : (a.expiration-b.expiration); });
 
             for (i = 0, len = Math.min(30, storedKeys.length); i < len; i++) {
               localStorage.removeItem(storedKeys[i].key);
@@ -114,17 +126,6 @@ var lscache = function() {
       }
 
       setItem(key, value);
-
-      if (time) {
-		  if(time == -1) {
-			  localStorage.setItem(expirationKey(key), -1);
-		  } else {
-			localStorage.setItem(expirationKey(key), currentTime() + time);
-		  }
-      } else {
-        // In case they set a time earlier, remove that info from localStorage.
-        localStorage.removeItem(expirationKey(key));
-      }
     },
 
     /**
