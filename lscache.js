@@ -47,11 +47,11 @@ var lscache = function() {
   }
 
   /**
-   * Returns the number of minutes since the epoch.
+   * Returns the number of seconds since the epoch.
    * @return {number}
    */
   function currentTime() {
-    return Math.floor((new Date().getTime())/60000);
+    return Math.floor((new Date().getTime())/1000);
   }
 
   return {
